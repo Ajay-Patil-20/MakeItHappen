@@ -1,0 +1,6 @@
+{
+  "name": "MakeItHappen",
+  "description": "A modern, responsive, production-quality task management and daily productivity app.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
