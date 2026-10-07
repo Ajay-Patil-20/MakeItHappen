@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -27,6 +29,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -115,27 +118,27 @@ fun TaskCreateEditDialog(
         Surface(
             modifier = Modifier
                 .fillMaxWidth(0.95f)
-                .padding(vertical = 24.dp)
+                .fillMaxHeight(0.88f)
+                .padding(vertical = 16.dp)
                 .testTag("task_dialog_surface"),
             shape = RoundedCornerShape(24.dp),
             color = MaterialTheme.colorScheme.surface,
             tonalElevation = 6.dp
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp)
-                    .verticalScroll(rememberScrollState())
+                modifier = Modifier.fillMaxSize()
             ) {
-                // Header
+                // Fixed Header
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 16.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
                         text = if (initialTask == null) "Create New Task" else "Edit Task",
-                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     IconButton(
@@ -150,141 +153,59 @@ fun TaskCreateEditDialog(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
 
-                // Title Input
-                OutlinedTextField(
-                    value = title,
-                    onValueChange = {
-                        title = it
-                        if (titleError && it.isNotBlank()) titleError = false
-                    },
+                // Scrollable Form Body
+                Column(
                     modifier = Modifier
+                        .weight(1f)
                         .fillMaxWidth()
-                        .testTag("task_title_input"),
-                    label = { Text("Task Title *") },
-                    placeholder = { Text("e.g. Complete quarterly report") },
-                    isError = titleError,
-                    supportingText = {
-                        if (titleError) {
-                            Text("Title cannot be empty", color = MaterialTheme.colorScheme.error)
-                        }
-                    },
-                    singleLine = true,
-                    shape = RoundedCornerShape(12.dp)
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Description Input
-                OutlinedTextField(
-                    value = description,
-                    onValueChange = { description = it },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .testTag("task_description_input"),
-                    label = { Text("Notes / Description") },
-                    placeholder = { Text("Add extra details, checklist, or links...") },
-                    minLines = 2,
-                    maxLines = 4,
-                    shape = RoundedCornerShape(12.dp)
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Due Date Section
-                Text(
-                    text = "Due Date",
-                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                FlowRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 20.dp, vertical = 14.dp)
                 ) {
-                    FilterChip(
-                        selected = dueDate == null,
-                        onClick = { dueDate = null },
-                        label = { Text("No Date") },
-                        leadingIcon = { Icon(Icons.Default.Event, contentDescription = null, modifier = Modifier.size(16.dp)) }
+                    // Title Input
+                    OutlinedTextField(
+                        value = title,
+                        onValueChange = {
+                            title = it
+                            if (titleError && it.isNotBlank()) titleError = false
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("task_title_input"),
+                        label = { Text("Task Title *") },
+                        placeholder = { Text("e.g. Complete quarterly report") },
+                        isError = titleError,
+                        supportingText = {
+                            if (titleError) {
+                                Text("Title cannot be empty", color = MaterialTheme.colorScheme.error)
+                            }
+                        },
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp)
                     )
-                    FilterChip(
-                        selected = dueDate == today,
-                        onClick = { dueDate = today },
-                        label = { Text("Today") }
-                    )
-                    FilterChip(
-                        selected = dueDate == tomorrow,
-                        onClick = { dueDate = tomorrow },
-                        label = { Text("Tomorrow") }
-                    )
-                    FilterChip(
-                        selected = dueDate == in2Days,
-                        onClick = { dueDate = in2Days },
-                        label = { Text("+2 Days") }
-                    )
-                    FilterChip(
-                        selected = dueDate == in3Days,
-                        onClick = { dueDate = in3Days },
-                        label = { Text("+3 Days") }
-                    )
-                    FilterChip(
-                        selected = dueDate == nextWeek,
-                        onClick = { dueDate = nextWeek },
-                        label = { Text("Next Week") }
-                    )
-                    if (dueDate != null && dueDate != today && dueDate != tomorrow && dueDate != in2Days && dueDate != in3Days && dueDate != nextWeek) {
-                        FilterChip(
-                            selected = true,
-                            onClick = {},
-                            label = { Text("Selected: ${DateUtils.formatDueDate(dueDate)}") },
-                            leadingIcon = { Icon(Icons.Default.Event, contentDescription = null, modifier = Modifier.size(16.dp)) }
-                        )
-                    }
-                }
-
-                if (dueDate != null) {
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        OutlinedButton(
-                            onClick = {
-                                val cal = Calendar.getInstance().apply {
-                                    timeInMillis = dueDate!!
-                                    add(Calendar.DAY_OF_YEAR, -1)
-                                }
-                                dueDate = DateUtils.getStartOfDay(cal.timeInMillis)
-                            },
-                            shape = RoundedCornerShape(8.dp)
-                        ) {
-                            Text("-1 Day")
-                        }
-                        OutlinedButton(
-                            onClick = {
-                                val cal = Calendar.getInstance().apply {
-                                    timeInMillis = dueDate!!
-                                    add(Calendar.DAY_OF_YEAR, 1)
-                                }
-                                dueDate = DateUtils.getStartOfDay(cal.timeInMillis)
-                            },
-                            shape = RoundedCornerShape(8.dp)
-                        ) {
-                            Text("+1 Day")
-                        }
-                        Text(
-                            text = DateUtils.formatDueDate(dueDate),
-                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
 
                     Spacer(modifier = Modifier.height(12.dp))
+
+                    // Description Input
+                    OutlinedTextField(
+                        value = description,
+                        onValueChange = { description = it },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("task_description_input"),
+                        label = { Text("Notes / Description") },
+                        placeholder = { Text("Add extra details, checklist, or links...") },
+                        minLines = 2,
+                        maxLines = 4,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Due Date Section
                     Text(
-                        text = "Due Time",
+                        text = "Due Date",
                         style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
                         color = MaterialTheme.colorScheme.onSurface
                     )
@@ -295,155 +216,251 @@ fun TaskCreateEditDialog(
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         FilterChip(
-                            selected = dueTime.isBlank() || dueTime == "none",
-                            onClick = { dueTime = "" },
-                            label = { Text("No Time") }
+                            selected = dueDate == null,
+                            onClick = { dueDate = null },
+                            label = { Text("No Date") },
+                            leadingIcon = { Icon(Icons.Default.Event, contentDescription = null, modifier = Modifier.size(16.dp)) }
                         )
-                        listOf(
-                            "09:00" to "9:00 AM",
-                            "12:00" to "12:00 PM",
-                            "14:00" to "2:00 PM",
-                            "18:00" to "6:00 PM",
-                            "21:00" to "9:00 PM"
-                        ).forEach { (timeVal, label) ->
+                        FilterChip(
+                            selected = dueDate == today,
+                            onClick = { dueDate = today },
+                            label = { Text("Today") }
+                        )
+                        FilterChip(
+                            selected = dueDate == tomorrow,
+                            onClick = { dueDate = tomorrow },
+                            label = { Text("Tomorrow") }
+                        )
+                        FilterChip(
+                            selected = dueDate == in2Days,
+                            onClick = { dueDate = in2Days },
+                            label = { Text("+2 Days") }
+                        )
+                        FilterChip(
+                            selected = dueDate == in3Days,
+                            onClick = { dueDate = in3Days },
+                            label = { Text("+3 Days") }
+                        )
+                        FilterChip(
+                            selected = dueDate == nextWeek,
+                            onClick = { dueDate = nextWeek },
+                            label = { Text("Next Week") }
+                        )
+                        if (dueDate != null && dueDate != today && dueDate != tomorrow && dueDate != in2Days && dueDate != in3Days && dueDate != nextWeek) {
                             FilterChip(
-                                selected = dueTime == timeVal,
-                                onClick = { dueTime = timeVal },
-                                label = { Text(label) },
-                                leadingIcon = { Icon(Icons.Default.Schedule, contentDescription = null, modifier = Modifier.size(14.dp)) }
+                                selected = true,
+                                onClick = {},
+                                label = { Text("Selected: ${DateUtils.formatDueDate(dueDate)}") },
+                                leadingIcon = { Icon(Icons.Default.Event, contentDescription = null, modifier = Modifier.size(16.dp)) }
                             )
                         }
                     }
-                }
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Priority Selection
-                Text(
-                    text = "Priority",
-                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    listOf("Low" to PriorityLow, "Medium" to PriorityMedium, "High" to PriorityHigh).forEach { (prio, color) ->
-                        val isSelected = priority.equals(prio, ignoreCase = true)
-                        FilterChip(
-                            selected = isSelected,
-                            onClick = { priority = prio },
-                            label = { Text(prio) },
-                            leadingIcon = {
-                                Box(
-                                    modifier = Modifier
-                                        .size(10.dp)
-                                        .clip(CircleShape)
-                                        .background(color)
-                                )
-                            },
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = color.copy(alpha = 0.15f),
-                                selectedLabelColor = color
-                            ),
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Category Selection
-                Text(
-                    text = "Category",
-                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                FlowRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    categories.forEach { cat ->
-                        val isSelected = category.equals(cat.name, ignoreCase = true)
-                        val catColor = try {
-                            Color(android.graphics.Color.parseColor(cat.colorHex))
-                        } catch (_: Exception) {
-                            MaterialTheme.colorScheme.primary
+                    if (dueDate != null) {
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            OutlinedButton(
+                                onClick = {
+                                    val cal = Calendar.getInstance().apply {
+                                        timeInMillis = dueDate!!
+                                        add(Calendar.DAY_OF_YEAR, -1)
+                                    }
+                                    dueDate = DateUtils.getStartOfDay(cal.timeInMillis)
+                                },
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Text("-1 Day")
+                            }
+                            OutlinedButton(
+                                onClick = {
+                                    val cal = Calendar.getInstance().apply {
+                                        timeInMillis = dueDate!!
+                                        add(Calendar.DAY_OF_YEAR, 1)
+                                    }
+                                    dueDate = DateUtils.getStartOfDay(cal.timeInMillis)
+                                },
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Text("+1 Day")
+                            }
+                            Text(
+                                text = DateUtils.formatDueDate(dueDate),
+                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                                color = MaterialTheme.colorScheme.primary
+                            )
                         }
 
-                        FilterChip(
-                            selected = isSelected,
-                            onClick = { category = cat.name },
-                            label = { Text(cat.name) },
-                            leadingIcon = {
-                                Box(
-                                    modifier = Modifier
-                                        .size(8.dp)
-                                        .clip(CircleShape)
-                                        .background(catColor)
+                        Spacer(modifier = Modifier.height(14.dp))
+                        Text(
+                            text = "Due Time",
+                            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        FlowRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            FilterChip(
+                                selected = dueTime.isBlank() || dueTime == "none",
+                                onClick = { dueTime = "" },
+                                label = { Text("No Time") }
+                            )
+                            listOf(
+                                "09:00" to "9:00 AM",
+                                "12:00" to "12:00 PM",
+                                "14:00" to "2:00 PM",
+                                "18:00" to "6:00 PM",
+                                "21:00" to "9:00 PM"
+                            ).forEach { (timeVal, label) ->
+                                FilterChip(
+                                    selected = dueTime == timeVal,
+                                    onClick = { dueTime = timeVal },
+                                    label = { Text(label) },
+                                    leadingIcon = { Icon(Icons.Default.Schedule, contentDescription = null, modifier = Modifier.size(14.dp)) }
                                 )
                             }
-                        )
+                        }
                     }
-                }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                // Reminder Toggle
-                Surface(
-                    shape = RoundedCornerShape(12.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
+                    // Priority Selection
+                    Text(
+                        text = "Priority",
+                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 14.dp, vertical = 10.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Default.Notifications,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(20.dp)
+                        listOf("Low" to PriorityLow, "Medium" to PriorityMedium, "High" to PriorityHigh).forEach { (prio, color) ->
+                            val isSelected = priority.equals(prio, ignoreCase = true)
+                            FilterChip(
+                                selected = isSelected,
+                                onClick = { priority = prio },
+                                label = { Text(prio) },
+                                leadingIcon = {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(10.dp)
+                                            .clip(CircleShape)
+                                            .background(color)
+                                    )
+                                },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = color.copy(alpha = 0.15f),
+                                    selectedLabelColor = color
+                                ),
+                                modifier = Modifier.weight(1f)
                             )
-                            Spacer(modifier = Modifier.width(10.dp))
-                            Column {
-                                Text(
-                                    text = "Task Reminder",
-                                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                                Text(
-                                    text = "Send alert when due time arrives",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
                         }
-                        Switch(
-                            checked = hasReminder,
-                            onCheckedChange = { hasReminder = it },
-                            modifier = Modifier.testTag("task_reminder_switch"),
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = EmeraldAccent,
-                                checkedTrackColor = EmeraldAccent.copy(alpha = 0.4f)
-                            )
-                        )
                     }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Category Selection
+                    Text(
+                        text = "Category",
+                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        categories.forEach { cat ->
+                            val isSelected = category.equals(cat.name, ignoreCase = true)
+                            val catColor = try {
+                                Color(android.graphics.Color.parseColor(cat.colorHex))
+                            } catch (_: Exception) {
+                                MaterialTheme.colorScheme.primary
+                            }
+
+                            FilterChip(
+                                selected = isSelected,
+                                onClick = { category = cat.name },
+                                label = { Text(cat.name) },
+                                leadingIcon = {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(8.dp)
+                                            .clip(CircleShape)
+                                            .background(catColor)
+                                    )
+                                }
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Reminder Toggle
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 14.dp, vertical = 10.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Default.Notifications,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Column {
+                                    Text(
+                                        text = "Task Reminder",
+                                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Text(
+                                        text = "Send alert when due time arrives",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                            Switch(
+                                checked = hasReminder,
+                                onCheckedChange = { hasReminder = it },
+                                modifier = Modifier.testTag("task_reminder_switch"),
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = EmeraldAccent,
+                                    checkedTrackColor = EmeraldAccent.copy(alpha = 0.4f)
+                                )
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
 
-                // Action Buttons
+                // Sticky Footer with Cancel and Save Buttons
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 14.dp),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     OutlinedButton(
                         onClick = onDismiss,

@@ -260,8 +260,7 @@ fun DrawerContent(
                 )
             }
 
-            Spacer(modifier = Modifier.weight(1f))
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
             HorizontalDivider(color = DividerDefaults.color.copy(alpha = 0.5f))
             Spacer(modifier = Modifier.height(8.dp))
 

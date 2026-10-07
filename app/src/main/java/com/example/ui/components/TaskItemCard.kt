@@ -167,9 +167,7 @@ fun TaskItemCard(
 
                 // Title and notes
                 Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clickable(onClick = onEdit)
+                    modifier = Modifier.weight(1f)
                 ) {
                     Text(
                         text = task.title,

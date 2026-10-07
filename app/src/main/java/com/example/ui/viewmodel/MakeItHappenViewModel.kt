@@ -34,7 +34,10 @@ enum class NavigationItem(val title: String) {
 enum class StatusFilter(val label: String) {
     ALL("All"),
     ACTIVE("Active"),
-    COMPLETED("Completed")
+    COMPLETED("Completed"),
+    TODAY("Today"),
+    UPCOMING("Upcoming"),
+    OVERDUE("Overdue")
 }
 
 enum class SortOption(val label: String) {
@@ -190,11 +193,14 @@ class MakeItHappenViewModel(
                 task.category.contains(query, ignoreCase = true)
             }
 
-            // Status filter (Active/Completed)
+            // Status filter (Active/Completed/Today/Upcoming/Overdue)
             val matchesStatus = when (status) {
                 StatusFilter.ALL -> true
                 StatusFilter.ACTIVE -> !task.isCompleted
                 StatusFilter.COMPLETED -> task.isCompleted
+                StatusFilter.TODAY -> DateUtils.isDueToday(task.dueDate)
+                StatusFilter.UPCOMING -> DateUtils.isUpcoming(task.dueDate)
+                StatusFilter.OVERDUE -> DateUtils.isOverdue(task.dueDate, task.dueTime, task.isCompleted)
             }
 
             // Category filter
